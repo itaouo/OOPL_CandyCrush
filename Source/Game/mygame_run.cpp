@@ -12,6 +12,8 @@
 #include<sstream>
 #include <vector>
 #include<math.h>
+#include<utility>
+
 
 
 #include <fstream>
@@ -89,7 +91,110 @@ void delay(int ms) {
 		now = clock();
 	}
 }
-vector<vector<int>> CheckMapStatus(int mp[9][9], int w, int h) {
+
+bool LTypeCandy(int mp[9][9], int now_h,int now_w) {
+	if (now_w >= 2 && now_h < h - 2) {
+		if (mp[now_h][now_w] == mp[now_h][now_w - 1]
+			&& mp[now_h][now_w] == mp[now_h][now_w - 2]
+			&& mp[now_h][now_w] == mp[now_h + 1][now_w]
+			&& mp[now_h][now_w] == mp[now_h + 2][now_w]) {
+			return true;
+		}
+	}
+	if (now_w < w - 2 && now_h < h - 2) {
+		if (mp[now_h][now_w] == mp[now_h][now_w + 1]
+			&& mp[now_h][now_w] == mp[now_h][now_w + 2]
+			&& mp[now_h][now_w] == mp[now_h + 1][now_w]
+			&& mp[now_h][now_w] == mp[now_h + 2][now_w]) {
+			return true;
+		}
+	}
+	if (now_w >= 2 && now_h >= 2) {
+		if (mp[now_h][now_w] == mp[now_h][now_w - 1]
+			&& mp[now_h][now_w] == mp[now_h][now_w - 2]
+			&& mp[now_h][now_w] == mp[now_h - 1][now_w]
+			&& mp[now_h][now_w] == mp[now_h - 2][now_w]) {
+			return true;
+		}
+	}
+	if (now_w < w - 2 && now_h >= 2) {
+		if (mp[now_h][now_w] == mp[now_h][now_w + 1]
+			&& mp[now_h][now_w] == mp[now_h][now_w + 2]
+			&& mp[now_h][now_w] == mp[now_h - 1][now_w]
+			&& mp[now_h][now_w] == mp[now_h - 2][now_w]) {
+			return true;
+		}
+	}
+	return false;
+}
+bool ITypeCandy(int mp[9][9], int now_h, int now_w) {
+	if (now_h >= 3) {
+		if (mp[now_h][now_w] == mp[now_h - 1][now_w]
+			&& mp[now_h][now_w] == mp[now_h - 2][now_w]
+			&& mp[now_h][now_w] == mp[now_h - 3][now_w]) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool TTypeCandy(int mp[9][9], int now_h, int now_w) {
+	if (now_w < w - 2 && now_h >= 1 && now_h < h - 1) {
+		if (mp[now_h][now_w] == mp[now_h - 1][now_w]
+			&& mp[now_h][now_w] == mp[now_h + 1][now_w]
+			&& mp[now_h][now_w] == mp[now_h][now_w + 1]
+			&& mp[now_h][now_w] == mp[now_h][now_w + 2]) {
+			return true;
+		}
+	}
+	if (now_w >= 2 && now_h >= 1 && now_h < h - 1) {
+		if (mp[now_h][now_w] == mp[now_h - 1][now_w]
+			&& mp[now_h][now_w] == mp[now_h + 1][now_w]
+			&& mp[now_h][now_w] == mp[now_h][now_w - 1]
+			&& mp[now_h][now_w] == mp[now_h][now_w - 2]) {
+			return true;
+		}
+	}
+	if (now_h >= 2 && now_w >= 1 && now_w < w - 1) {
+		if (mp[now_h][now_w] == mp[now_h][now_w - 1]
+			&& mp[now_h][now_w] == mp[now_h][now_w + 1]
+			&& mp[now_h][now_w] == mp[now_h - 1][now_w]
+			&& mp[now_h][now_w] == mp[now_h - 2][now_w]) {
+			return true;
+		}
+	}
+	if (now_h < h - 2 && now_w >= 1 && now_w < w - 1) {
+		if (mp[now_h][now_w] == mp[now_h][now_w - 1]
+			&& mp[now_h][now_w] == mp[now_h][now_w + 1]
+			&& mp[now_h][now_w] == mp[now_h + 1][now_w]
+			&& mp[now_h][now_w] == mp[now_h + 2][now_w]) {
+			return true;
+		}
+	}
+	return false;
+}
+/*
+bool ETypeCandy(int mp[9][9], int now_h, int now_w) {
+
+}
+*/
+void CGameStateRun::update_candy() {
+	for (int i = h - 1; i >= 0; i--) {
+		for (int j = w - 1; j >= 0; j--) {
+			if (which_candy[i][j] == -1) {
+				candy[i][j].SetFrameIndexOfBitmap(26);
+			}
+			else if (which_candy[i][j] == -11) {
+				candy[i][j].SetFrameIndexOfBitmap(27);
+			}
+			else {
+				candy[i][j].SetFrameIndexOfBitmap(which_candy[i][j] / 10 * 6 + which_candy[i][j] % 10);
+			}
+		}
+	}
+}
+bool disapear = 0;
+vector<vector<int>> CGameStateRun::CheckMapStatus(int mp[9][9], int w, int h) {
 	vector<vector<int>> status(9);
 	for (int i = 0; i < h; i++) {
 		for (int j = 0; j < w; j++) {
@@ -107,6 +212,23 @@ vector<vector<int>> CheckMapStatus(int mp[9][9], int w, int h) {
 					status[i][j - 1] = 0;
 					status[i][j - 2] = 0;
 				}
+			}
+			
+		}
+	}
+	for (int i = 0; i < h; i++) {
+		for (int j = 0; j < w; j++) {
+			if (LTypeCandy(mp, i, j)||TTypeCandy(mp, i, j)) {
+				status[i][j] = 1;
+				candy[i][j].SetFrameIndexOfBitmap(which_candy[i][j] + 6);
+				which_candy[i][j] += 10;
+				disapear = 1;
+			}
+			if (ITypeCandy(mp, i, j)) {
+				status[i][j] = 1;
+				candy[i][j].SetFrameIndexOfBitmap(which_candy[i][j] + 12);
+				which_candy[i][j] += 20;
+				disapear = 1;
 			}
 		}
 	}
@@ -147,11 +269,14 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			door[i].SetFrameIndexOfBitmap(1);
 		}
 	}
-	if (CheckInitCandy(which_candy, 5, 5)) {
-		vector<vector<int>> status = CheckMapStatus(which_candy, w, h);
+	vector<vector<int>> status = CheckMapStatus(which_candy, w, h);
+	if (CheckInitCandy(which_candy, 5, 5)||disapear) {
+		disapear = 0;
+		
 		for (int i = 0; i < h; i++) {
 			for (int j = 0; j < w; j++) {
 				if (status[i][j] == 0) {
+					character.SetTopLeft(600, 600);
 					for (int k = i - 1; k >= 0; k--) {
 						for (int i = 0; i < 5; i++) {
 							//candy[k][j].SetTopLeft(candy[k][j].GetLeft(), candy[k][j].GetTop() + 10);
@@ -161,11 +286,7 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 						which_candy[k][j] = which_candy[k - 1][j];
 					}
 					which_candy[0][j] = rnd_number(0, 3);
-					for (int i = 0; i < h; i++) {
-						for (int j = 0; j < w; j++) {
-							candy[i][j].SetFrameIndexOfBitmap(which_candy[i][j]);
-						}
-					}
+					update_candy();
 
 				}
 			}
