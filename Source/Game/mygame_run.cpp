@@ -7,8 +7,8 @@
 #include "../Library/gamecore.h"
 #include "mygame.h"
 #include<iostream>
-#include <cstdlib> /* ¶Ã¼Æ¬ÛÃö¨ç¼Æ */
-#include <ctime>   /* ®É¶¡¬ÛÃö¨ç¼Æ */
+#include <cstdlib> /* äº‚æ•¸ç›¸é—œå‡½æ•¸ */
+#include <ctime>   /* æ™‚é–“ç›¸é—œå‡½æ•¸ */
 #include<sstream>
 #include <vector>
 #include<math.h>
@@ -22,7 +22,7 @@ using namespace std;
 using namespace game_framework;
 
 /////////////////////////////////////////////////////////////////////////////
-// ³o­Óclass¬°¹CÀ¸ªº¹CÀ¸°õ¦æª«¥ó¡A¥D­nªº¹CÀ¸µ{¦¡³£¦b³o¸Ì
+// é€™å€‹classç‚ºéŠæˆ²çš„éŠæˆ²åŸ·è¡Œç‰©ä»¶ï¼Œä¸»è¦çš„éŠæˆ²ç¨‹å¼éƒ½åœ¨é€™è£¡
 /////////////////////////////////////////////////////////////////////////////
 vector<vector<int>> LoadMap(string map_name, int *row, int *column) {
 	ifstream in;
@@ -57,11 +57,11 @@ int which_candy[9][9] = { 0 };
 vector<vector<int>> mp;
 
 int rnd_number(int start, int end) {
-	/* «ü©w¶Ã¼Æ½d³ò */
+	/* æŒ‡å®šäº‚æ•¸ç¯„åœ */
 	int min = start;
 	int max = end;
 
-	/* ²£¥Í [min , max] ªº¾ã¼Æ¶Ã¼Æ */
+	/* ç”¢ç”Ÿ [min , max] çš„æ•´æ•¸äº‚æ•¸ */
 	int x = rand() % (max - min + 1) + min;
 
 	return x;
@@ -258,7 +258,20 @@ vector<vector<int>> UpdateMap(vector<vector<int>> mp, int i, int j) {
 	return mp;
 }
 
-void CGameStateRun::OnMove()							// ²¾°Ê¹CÀ¸¤¸¯À
+void CGameStateRun::vertical_fall_candy(int i,int j) {
+	for (int k = 0; k <= i; k++) {
+		if (which_candy[k][j] < 0) {
+			i = k-1;
+
+			break;
+		}
+	}
+	for (int k = i; k > 0; k--) {
+		which_candy[k][j] = which_candy[k - 1][j];
+	}
+}
+
+void CGameStateRun::OnMove()							// ç§»å‹•éŠæˆ²å…ƒç´ 
 {
 	if (character.IsOverlap(character, chest_and_key)) {
 		chest_and_key.SetFrameIndexOfBitmap(1);
@@ -282,12 +295,9 @@ void CGameStateRun::OnMove()							// ²¾°Ê¹CÀ¸¤¸¯À
 							//candy[k][j].SetTopLeft(candy[k][j].GetLeft(), candy[k][j].GetTop() + 10);
 						} //candy[k][j]
 					}
-					for (int k = i; k > 0; k--) {
-						which_candy[k][j] = which_candy[k - 1][j];
-					}
+					vertical_fall_candy(i, j);
 					which_candy[0][j] = rnd_number(0, 3);
 					update_candy();
-
 				}
 			}
 		}
@@ -295,9 +305,23 @@ void CGameStateRun::OnMove()							// ²¾°Ê¹CÀ¸¤¸¯À
 	}
 
 }
+void CGameStateRun::update_candy() {
+	for (int i = h - 1; i >= 0; i--) {
+		for (int j = w - 1; j >= 0; j--) {
+			if (which_candy[i][j] == -1) {
+				candy[i][j].SetFrameIndexOfBitmap(26);
+			}
+			else if (which_candy[i][j] == -11) {
+				candy[i][j].SetFrameIndexOfBitmap(27);
+			}
+			else {
+				candy[i][j].SetFrameIndexOfBitmap(which_candy[i][j] / 10 * 6 + which_candy[i][j] % 10);
+			}
+		}
+	}
+}
 
-
-void CGameStateRun::OnInit()  								// ¹CÀ¸ªºªì­È¤Î¹Ï§Î³]©w
+void CGameStateRun::OnInit()  								// éŠæˆ²çš„åˆå€¼åŠåœ–å½¢è¨­å®š
 {
 
 	background.LoadBitmapByString({
@@ -357,16 +381,14 @@ void CGameStateRun::OnInit()  								// ¹CÀ¸ªºªì­È¤Î¹Ï§Î³]©w
 				"Resources/texture_pack_original/candy/35.bmp",
 				"Resources/texture_pack_original/candy/40.bmp",
 				"Resources/texture_pack_original/candy/50.bmp",
+				"Resources/texture_pack_original/candy/-1.bmp",
+				"Resources/texture_pack_original/candy/-11.bmp",
 				});
 			candy[i][j].SetTopLeft((400 - 25 * w) + j * 50, (400 - 25 * h) + i * 50);
 			which_candy[i][j] = mp[i][j];
 		}
 	}
-	for (int i = h - 1; i >= 0; i--) {
-		for (int j = w - 1; j >= 0; j--) {
-			candy[i][j].SetFrameIndexOfBitmap(which_candy[i][j]);
-		}
-	}
+	update_candy();
 	for (int i = 0; i < 3; i++) {
 		door[i].LoadBitmapByString({ "resources/door_close.bmp", "resources/door_open.bmp" }, RGB(255, 255, 255));
 		door[i].SetTopLeft(462 - 100 * i, 265);
@@ -515,10 +537,8 @@ bool oneInSquare() {
 		return 1;
 	}
 }
-void CGameStateRun::OnLButtonDown(UINT nFlags, CPoint point)  // ³B²z·Æ¹«ªº°Ê§@
+void CGameStateRun::OnLButtonDown(UINT nFlags, CPoint point)  // è™•ç†æ»‘é¼ çš„å‹•ä½œ
 {
-
-
 	if (which_mou) {
 		idx1 = point.x;
 		idy1 = point.y;
@@ -554,22 +574,22 @@ void CGameStateRun::OnLButtonDown(UINT nFlags, CPoint point)  // ³B²z·Æ¹«ªº°Ê§@
 
 }
 
-void CGameStateRun::OnLButtonUp(UINT nFlags, CPoint point)	// ³B²z·Æ¹«ªº°Ê§@
+void CGameStateRun::OnLButtonUp(UINT nFlags, CPoint point)	// è™•ç†æ»‘é¼ çš„å‹•ä½œ
 {
 
 }
 
-void CGameStateRun::OnMouseMove(UINT nFlags, CPoint point)	// ³B²z·Æ¹«ªº°Ê§@
+void CGameStateRun::OnMouseMove(UINT nFlags, CPoint point)	// è™•ç†æ»‘é¼ çš„å‹•ä½œ
 {
 
 
 }
 
-void CGameStateRun::OnRButtonDown(UINT nFlags, CPoint point)  // ³B²z·Æ¹«ªº°Ê§@
+void CGameStateRun::OnRButtonDown(UINT nFlags, CPoint point)  // è™•ç†æ»‘é¼ çš„å‹•ä½œ
 {
 }
 
-void CGameStateRun::OnRButtonUp(UINT nFlags, CPoint point)	// ³B²z·Æ¹«ªº°Ê§@
+void CGameStateRun::OnRButtonUp(UINT nFlags, CPoint point)	// è™•ç†æ»‘é¼ çš„å‹•ä½œ
 {
 }
 
@@ -611,41 +631,41 @@ void CGameStateRun::show_image_by_phase() {
 void CGameStateRun::show_text_by_phase() {
 	CDC *pDC = CDDraw::GetBackCDC();
 
-	CTextDraw::ChangeFontLog(pDC, 21, "·L³n¥¿¶ÂÅé", RGB(0, 0, 0), 800);
+	CTextDraw::ChangeFontLog(pDC, 21, "å¾®è»Ÿæ­£é»‘é«”", RGB(0, 0, 0), 800);
 
 	if (phase == 1 && sub_phase == 1) {
-		CTextDraw::Print(pDC, 237, 128, "­×§ï§Aªº¥D¨¤¡I");
-		CTextDraw::Print(pDC, 55, 163, "±N¦Ç¦â¤è®æ´«¦¨ resources ¤ºªº giraffe.bmp ¹Ï¼Ë¡I");
+		CTextDraw::Print(pDC, 237, 128, "ä¿®æ”¹ä½ çš„ä¸»è§’ï¼");
+		CTextDraw::Print(pDC, 55, 163, "å°‡ç°è‰²æ–¹æ ¼æ›æˆ resources å…§çš„ giraffe.bmp åœ–æ¨£ï¼");
 		CTextDraw::Print(pDC, 373, 537, to_string(clock()));
 	}
 	else if (phase == 2 && sub_phase == 1) {
-		CTextDraw::Print(pDC, 26, 128, "¤U¤@­Ó¶¥¬q¡AÅıªøÀV³À¯à°÷³z¹L¤W¤U¥ª¥k²¾°Ê¨ì³o­Ó¦ì¸m¡I");
-		CTextDraw::Print(pDC, 373, 537, "«ö¤U Enter Áä¨ÓÅçÃÒ");
+		CTextDraw::Print(pDC, 26, 128, "ä¸‹ä¸€å€‹éšæ®µï¼Œè®“é•·é ¸é¹¿èƒ½å¤ é€éä¸Šä¸‹å·¦å³ç§»å‹•åˆ°é€™å€‹ä½ç½®ï¼");
+		CTextDraw::Print(pDC, 373, 537, "æŒ‰ä¸‹ Enter éµä¾†é©—è­‰");
 	}
 	else if (phase == 3 && sub_phase == 1) {
-		CTextDraw::Print(pDC, 205, 128, "À°§A·Ç³Æ¤F¤@­ÓÄ_½c");
-		CTextDraw::Print(pDC, 68, 162, "³]­pµ{¦¡ÅıªøÀV³ÀºN¨ìÄ_½c«á¡A±NÄ_½c®ø¥¢¡I");
-		CTextDraw::Print(pDC, 68, 196, "°O±oÄ_½c­n¥h­I¡A¨Ï¥Î RGB(255, 255, 255)");
-		CTextDraw::Print(pDC, 373, 537, "«ö¤U Enter Áä¨ÓÅçÃÒ");
+		CTextDraw::Print(pDC, 205, 128, "å¹«ä½ æº–å‚™äº†ä¸€å€‹å¯¶ç®±");
+		CTextDraw::Print(pDC, 68, 162, "è¨­è¨ˆç¨‹å¼è®“é•·é ¸é¹¿æ‘¸åˆ°å¯¶ç®±å¾Œï¼Œå°‡å¯¶ç®±æ¶ˆå¤±ï¼");
+		CTextDraw::Print(pDC, 68, 196, "è¨˜å¾—å¯¶ç®±è¦å»èƒŒï¼Œä½¿ç”¨ RGB(255, 255, 255)");
+		CTextDraw::Print(pDC, 373, 537, "æŒ‰ä¸‹ Enter éµä¾†é©—è­‰");
 	}
 	else if (phase == 4 && sub_phase == 1) {
-		CTextDraw::Print(pDC, 173, 128, "À°§A·Ç³Æ¤F¤@­Ó»e¸Á¦nªB¤Í");
-		CTextDraw::Print(pDC, 89, 162, "¤w¸gÀ°¥¦°µ¤F¨â´Vªº°Êµe¡AÅı¥¦¥i¥H¤W¤U²¾°Ê");
-		CTextDraw::Print(pDC, 110, 196, "¼g­Óµ{¦¡¨ÓÅı§Aªº»e¸Á¦nªB¤Í¾Ö¦³°Êµe¡I");
-		CTextDraw::Print(pDC, 373, 537, "«ö¤U Enter Áä¨ÓÅçÃÒ");
+		CTextDraw::Print(pDC, 173, 128, "å¹«ä½ æº–å‚™äº†ä¸€å€‹èœœèœ‚å¥½æœ‹å‹");
+		CTextDraw::Print(pDC, 89, 162, "å·²ç¶“å¹«å®ƒåšäº†å…©å¹€çš„å‹•ç•«ï¼Œè®“å®ƒå¯ä»¥ä¸Šä¸‹ç§»å‹•");
+		CTextDraw::Print(pDC, 110, 196, "å¯«å€‹ç¨‹å¼ä¾†è®“ä½ çš„èœœèœ‚å¥½æœ‹å‹æ“æœ‰å‹•ç•«ï¼");
+		CTextDraw::Print(pDC, 373, 537, "æŒ‰ä¸‹ Enter éµä¾†é©—è­‰");
 	}
 	else if (phase == 5 && sub_phase == 1) {
-		CTextDraw::Print(pDC, 173, 128, "À°§A·Ç³Æ¤F¤T®°ªù");
-		CTextDraw::Print(pDC, 89, 162, "³]­pµ{¦¡ÅıªøÀV³ÀºN¨ìªù¤§«á¡Aªù·|¥´¶}");
-		CTextDraw::Print(pDC, 373, 537, "«ö¤U Enter Áä¨ÓÅçÃÒ");
+		CTextDraw::Print(pDC, 173, 128, "å¹«ä½ æº–å‚™äº†ä¸‰æ‰‡é–€");
+		CTextDraw::Print(pDC, 89, 162, "è¨­è¨ˆç¨‹å¼è®“é•·é ¸é¹¿æ‘¸åˆ°é–€ä¹‹å¾Œï¼Œé–€æœƒæ‰“é–‹");
+		CTextDraw::Print(pDC, 373, 537, "æŒ‰ä¸‹ Enter éµä¾†é©—è­‰");
 	}
 	else if (phase == 6 && sub_phase == 1) {
-		CTextDraw::Print(pDC, 173, 128, "À°§A·Ç³Æ¤F¤@Áû·|­Ë¼Æªº²y");
-		CTextDraw::Print(pDC, 89, 162, "³]­pµ{¦¡Åı²y­Ë¼Æ¡AµM«áÅã¥Ü OK «á°±¤î°Êµe");
-		CTextDraw::Print(pDC, 373, 537, "«ö¤U Enter Áä¨ÓÅçÃÒ");
+		CTextDraw::Print(pDC, 173, 128, "å¹«ä½ æº–å‚™äº†ä¸€é¡†æœƒå€’æ•¸çš„çƒ");
+		CTextDraw::Print(pDC, 89, 162, "è¨­è¨ˆç¨‹å¼è®“çƒå€’æ•¸ï¼Œç„¶å¾Œé¡¯ç¤º OK å¾Œåœæ­¢å‹•ç•«");
+		CTextDraw::Print(pDC, 373, 537, "æŒ‰ä¸‹ Enter éµä¾†é©—è­‰");
 	}
 	else if (sub_phase == 2) {
-		CTextDraw::Print(pDC, 268, 128, "§¹¦¨¡I");
+		CTextDraw::Print(pDC, 268, 128, "å®Œæˆï¼");
 	}
 
 	CDDraw::ReleaseBackCDC();
