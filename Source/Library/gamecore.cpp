@@ -965,14 +965,14 @@ namespace game_framework {
 	}
 
 	void CGameState::ShowInitProgress(int percent, string message)
-	{
+	{	
 		if (!SHOW_LOAD_PROGRESS)
 			return;
-		const int bar_width = SIZE_X * 2 / 3;
-		const int bar_height = SIZE_Y / 20;
+		const int bar_width = SIZE_X / 3;
+		const int bar_height = SIZE_Y / 30;
 		const int x1 = (SIZE_X - bar_width) / 2;
 		const int x2 = x1 + bar_width;
-		const int y1 = (SIZE_Y - bar_height) / 2;
+		const int y1 = (SIZE_Y - bar_height) / 6 * 5;
 		const int y2 = y1 + bar_height;
 		const int pen_width = bar_height / 8;
 		const int progress_x1 = x1 + pen_width;
@@ -983,10 +983,10 @@ namespace game_framework {
 
 		CDDraw::BltBackColor(DEFAULT_BG_COLOR);		// 將 Back Plain 塗上預設的顏色
 
-		// CMovingBitmap loading;						// 貼上loading圖示
-		// loading.LoadBitmap({ "RES/loading.bmp" });
-		// loading.SetTopLeft(0, 0);
-		// loading.ShowBitmap();
+		CMovingBitmap loading;						// 貼上loading圖示
+		loading.LoadBitmap({ "Resources/texture_pack_original/bg_screens/loding2.bmp" });
+		loading.SetTopLeft(0, 0);
+		loading.ShowBitmap();
 
 		//
 		// 以下為CDC的用法

@@ -7,25 +7,21 @@
 #include "../Library/gamecore.h"
 #include "mygame.h"
 #include<iostream>
-#include <cstdlib> /* ï¿?????ï¿½ï¿½?ï¿½ï¿½????ï¿½ï¿½?? */
-#include <ctime>   /* ????????ï¿½ï¿½????ï¿½ï¿½?? */
+#include <cstdlib>
+#include <ctime>
 #include<sstream>
 #include <vector>
 #include<math.h>
 #include<utility>
-
-
-
 #include <fstream>
-using namespace std;
 
+using namespace std;
 using namespace game_framework;
+
 int idx0 = 0, idx1 = 0;
 int idy0 = 0, idy1 = 0;
 bool which_mou = 0;
-/////////////////////////////////////////////////////////////////////////////
-// ??????class??ï¿½ï¿½????ï¿½ï¿½???????ï¿½ï¿½?ï¿½ï¿½????ï¿½ä»¶ï¿???ä¸»ï¿½??????????ï¿½ï¿½??ï¿?????ï¿½ï¿½?ï¿½ï¿½??ï¿???
-/////////////////////////////////////////////////////////////////////////////
+
 vector<vector<int>> LoadMap(string map_name, int *row, int *column) {
 	ifstream in;
 	in.open("Resources/map/" + map_name + ".txt");
@@ -42,6 +38,7 @@ vector<vector<int>> LoadMap(string map_name, int *row, int *column) {
 
 	return map;
 }
+
 CGameStateRun::CGameStateRun(CGame *g) : CGameState(g)
 {
 }
@@ -54,38 +51,38 @@ void CGameStateRun::OnBeginState()
 {
 
 }
+
 int w = 5, h = 5;
 int which_candy[9][9] = { 0 };
 vector<vector<int>> mp;
 
 int rnd_number(int start, int end) {
-	/* ???ï¿???ï¿?????ï¿½ï¿½????? */
 	int min = start;
 	int max = end;
-
-	/* ??ï¿½ï¿½?? [min , max] ?????ï¿½ï¿½?ï¿½ï¿½????? */
 	int x = rand() % (max - min + 1) + min;
-
 	return x;
 }
 
 bool CheckInitCandy(int arr[9][9], int w, int h) {
 	for (int i = 0; i < h; i++) {
 		for (int j = 0; j < w; j++) {
-			if (i >= 2) {
-				if (arr[i][j]%10 == arr[i - 1][j]%10 && arr[i][j]%10 == arr[i - 2][j]%10) {
-					return true;
+			if (arr[i][j] >= 0) {
+				if (i >= 2) {
+					if (arr[i][j] % 10 == arr[i - 1][j] % 10 && arr[i][j] % 10 == arr[i - 2][j] % 10) {
+						return true;
+					}
 				}
-			}
-			if (j >= 2) {
-				if (arr[i][j]%10 == arr[i][j - 1]%10 && arr[i][j]%10 == arr[i][j - 2]%10) {
-					return true;
+				if (j >= 2) {
+					if (arr[i][j] % 10 == arr[i][j - 1] % 10 && arr[i][j] % 10 == arr[i][j - 2] % 10) {
+						return true;
+					}
 				}
 			}
 		}
 	}
 	return false;
 }
+
 void delay(int ms) {
 	int set_clock = clock() + ms;
 	int now = clock();
@@ -129,6 +126,7 @@ bool LTypeCandy(int mp[9][9], int now_h,int now_w) {
 	}
 	return false;
 }
+
 bool ITypeCandy(int mp[9][9], int now_h, int now_w) {
 	if (now_h >= 3) {
 		if (mp[now_h][now_w] == mp[now_h - 1][now_w]
@@ -199,6 +197,9 @@ void CGameStateRun::update_candy() {
 			if (which_candy[i][j] == -1) {
 				candy[i][j].SetFrameIndexOfBitmap(26);
 			}
+			else if (which_candy[i][j] <= -60) {
+				candy[i][j].SetFrameIndexOfBitmap(31);
+			}
 			else if (which_candy[i][j] <= -10) {
 				candy[i][j].SetFrameIndexOfBitmap(std::abs(which_candy[i][j]) + 17);
 			}
@@ -218,14 +219,14 @@ vector<vector<int>> CGameStateRun::CheckMapStatus(int mp[9][9], int w, int h) {
 				status[i][j] = 2;
 				disapear = 1;
 			}
-			if (i >= 2) {
+			if (i >= 2 && which_candy[i][j] >= 0) {
 				if (mp[i][j]%10 == mp[i - 1][j]%10 && mp[i][j]%10 == mp[i - 2][j]%10) {
 					status[i][j] = 0;
 					status[i - 1][j] = 0;
 					status[i - 2][j] = 0;
 				}
 			}
-			if (j >= 2) {
+			if (j >= 2 && which_candy[i][j] >= 0) {
 				if (mp[i][j]%10 == mp[i][j - 1]%10 && mp[i][j]%10 == mp[i][j - 2]%10) {
 					status[i][j] = 0;
 					status[i][j - 1] = 0;
@@ -235,6 +236,7 @@ vector<vector<int>> CGameStateRun::CheckMapStatus(int mp[9][9], int w, int h) {
 			
 		}
 	}
+
 	int ii = (idy0 - (400 - 25 * h)) / 50;
 	int jj = (idx0 - (400 - 25 * w)) / 50;
 	if (ETypeCandy(mp, ii, jj) ){
@@ -309,32 +311,30 @@ vector<vector<int>> UpdateMap(vector<vector<int>> mp, int i, int j) {
 }
 
 void CGameStateRun::vertical_fall_candy(int i,int j) {
-	/*for (int k = i; k > 0; k--) {
-		which_candy[k][j] = which_candy[k - 1][j];
-	}*/
-	if (i == 0) {
+	if (i == 0) { //potential bug (fall candy probably not start from i=0)
+		//which_candy[0][j] = -10;
 		return;
 	}
-	if (which_candy[i][j] >= 0) {
+	if (which_candy[i - 1][j] >= 0) {
 		which_candy[i][j] = which_candy[i - 1][j];
 		vertical_fall_candy(i - 1, j);
 		return;
 	}
 	if (j >= 0){
-		if (which_candy[i][j - 1] >= 0) {
+		if (which_candy[i - 1][j - 1] >= 0) {
 			which_candy[i][j] = which_candy[i - 1][j - 1];
 			vertical_fall_candy(i - 1, j - 1);
 			return;
 		}
 	}
 	if (j <= w - 1) {
-		if (which_candy[i][j + 1] >= 0) {
+		if (which_candy[i - 1][j + 1] >= 0) {
 			which_candy[i][j] = which_candy[i - 1][j + 1];
 			vertical_fall_candy(i - 1, j + 1);
 			return;
 		}
 	}
-	which_candy[i][j] = -10;
+	which_candy[i][j] = -99;
 }
 
 void CGameStateRun::remove_obstacle_layer(int i, int j){
@@ -373,9 +373,7 @@ void CGameStateRun::OnMove()							// ç§»ï¿½???????ï¿½ï¿½??ï¿??
 	vector<vector<int>> status = CheckMapStatus(which_candy, w, h);
 	if (CheckInitCandy(which_candy, 5, 5)||disapear) {
 		disapear = 0;
-		TRACE("which_candy %d\n", which_candy[2][4]);
-		TRACE("status %d\n", status[1][4]);
-		for (int i = 0; i < h; i++) {
+		for (int i = h - 1; i >= 0; i--) {
 			for (int j = 0; j < w; j++) {
 				if (status[i][j] == 0 && which_candy[i][j] != -10) {
 					character.SetTopLeft(600, 600);
@@ -401,12 +399,12 @@ void CGameStateRun::OnMove()							// ç§»ï¿½???????ï¿½ï¿½??ï¿??
 		idx0 = 0, idx1 = 0;
 		idy0 = 0, idy1 = 0;
 		which_mou = 0;
-		delay(500);
+		delay(1500);
 	}
 
 }
 
-void CGameStateRun::OnInit()  								// ?????ï¿½ï¿½???????ï¿½ï¿½?????å½¢è¨­ï¿???
+void CGameStateRun::OnInit()
 {
 
 	background.LoadBitmapByString({
@@ -466,11 +464,12 @@ void CGameStateRun::OnInit()  								// ?????ï¿½ï¿½???????ï¿½ï¿½???
 				"Resources/texture_pack_original/candy/35.bmp",
 				"Resources/texture_pack_original/candy/40.bmp",
 				"Resources/texture_pack_original/candy/50.bmp",
-				"Resources/texture_pack_original/candy/-1.bmp",
+				"Resources/texture_pack_original/candy/-1.bmp", //frame: 26
 				"Resources/texture_pack_original/candy/-10.bmp",
 				"Resources/texture_pack_original/candy/-11.bmp",
 				"Resources/texture_pack_original/candy/-12.bmp",
-				"Resources/texture_pack_original/candy/-13.bmp"
+				"Resources/texture_pack_original/candy/-13.bmp",
+				"Resources/texture_pack_original/candy/-99.bmp"
 				});
 			candy[i][j].SetTopLeft((400 - 25 * w) + j * 50, (400 - 25 * h) + i * 50);
 			which_candy[i][j] = mp[i][j];
@@ -627,7 +626,7 @@ bool oneInSquare() {
 		return 1;
 	}
 }
-void CGameStateRun::OnLButtonDown(UINT nFlags, CPoint point)  // ??????ï¿???ï¿?????????ï¿???
+void CGameStateRun::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	if (which_mou) {
 		idx1 = point.x;
@@ -670,22 +669,22 @@ void CGameStateRun::OnLButtonDown(UINT nFlags, CPoint point)  // ??????ï¿???ï
 
 }
 
-void CGameStateRun::OnLButtonUp(UINT nFlags, CPoint point)	// ??????ï¿???ï¿?????????ï¿???
+void CGameStateRun::OnLButtonUp(UINT nFlags, CPoint point)
 {
 
 }
 
-void CGameStateRun::OnMouseMove(UINT nFlags, CPoint point)	// ??????ï¿???ï¿?????????ï¿???
+void CGameStateRun::OnMouseMove(UINT nFlags, CPoint point)
 {
 
 
 }
 
-void CGameStateRun::OnRButtonDown(UINT nFlags, CPoint point)  // ??????ï¿???ï¿?????????ï¿???
+void CGameStateRun::OnRButtonDown(UINT nFlags, CPoint point)
 {
 }
 
-void CGameStateRun::OnRButtonUp(UINT nFlags, CPoint point)	// ??????ï¿???ï¿?????????ï¿???
+void CGameStateRun::OnRButtonUp(UINT nFlags, CPoint point)
 {
 }
 
@@ -731,9 +730,7 @@ void CGameStateRun::show_text_by_phase() {
 	CTextDraw::ChangeFontLog(pDC, 21, "å¾®ï¿½??ï¿???ï¿???ï¿???", RGB(0, 0, 0), 800);
 
 	if (phase == 1 && sub_phase == 1) {
-		CTextDraw::Print(pDC, 237, 128, "ä¿®ï¿½?ï¿½ï¿½?????ä¸»ï¿½??ï¿???");
-		CTextDraw::Print(pDC, 55, 163, "ï¿?????ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½????? resources ??ï¿½ï¿½?? giraffe.bmp ???ï¿???ï¿???");
-		CTextDraw::Print(pDC, 373, 537, to_string(clock()));
+		CTextDraw::Print(pDC, 50, 70, "timer: " + to_string(clock()));
 	}
 	else if (phase == 2 && sub_phase == 1) {
 		CTextDraw::Print(pDC, 26, 128, "ï¿???ï¿?????????æ®µï¿½??ï¿?????ï¿½ï¿½?ï¿½é¹¿??ï¿½ï¿½????????ï¿???ï¿???å·¦ï¿½?ï¿½ç§»?????ï¿½ï¿½?????ï¿???ç½®ï¿½??");

@@ -18,18 +18,18 @@ CGameStateInit::CGameStateInit(CGame *g) : CGameState(g)
 }
 
 void CGameStateInit::OnInit()
-{
+{	
+	
 	//
 	// 當圖很多時，OnInit載入所有的圖要花很多時間。為避免玩遊戲的人
 	//     等的不耐煩，遊戲會出現「Loading ...」，顯示Loading的進度。
 	//
-	ShowInitProgress(0, "Start Initialize...");	// 一開始的loading進度為0%
-	Sleep(200);
-
+	
+	for (int i = 0; i < 100; i++) {
+		ShowInitProgress(i, "");
+		Sleep(2);
+	}
 	load_background();
-
-	ShowInitProgress(66, "Initialize...");
-	Sleep(200);
 	//
 	// 此OnInit動作會接到CGameStaterRun::OnInit()，所以進度還沒到100%
 	//
@@ -47,6 +47,7 @@ void CGameStateInit::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 void CGameStateInit::OnLButtonDown(UINT nFlags, CPoint point)
 {
+	GotoGameState(GAME_STATE_RUN);
 }
 
 void CGameStateInit::OnShow()
@@ -56,7 +57,7 @@ void CGameStateInit::OnShow()
 }
 
 void CGameStateInit::load_background() {
-	background.LoadBitmapByString({ "Resources/texture_pack_original/bg_screens/2.bmp" });
+	background.LoadBitmapByString({ "Resources/texture_pack_original/bg_screens/start.bmp" });
 	background.SetTopLeft(0, 0);
 }
 
@@ -64,12 +65,12 @@ void CGameStateInit::draw_text() {
 	CDC *pDC = CDDraw::GetBackCDC();
 
 	/* Print title */
-	CTextDraw::ChangeFontLog(pDC, 36, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 79, 228, "Game Framework Practice");
+	/*CTextDraw::ChangeFontLog(pDC, 36, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 79, 228, "Candy Crush");*/
 
 	/* Print info */
-	CTextDraw::ChangeFontLog(pDC,  24, "微軟正黑體", RGB(0, 0, 0));
-	CTextDraw::Print(pDC, 200, 600, "Press any key to start");
+	/*CTextDraw::ChangeFontLog(pDC,  24, "微軟正黑體", RGB(0, 0, 0));
+	CTextDraw::Print(pDC, 200, 600, "Press any key to start");*/
 
 	CDDraw::ReleaseBackCDC();
 }
