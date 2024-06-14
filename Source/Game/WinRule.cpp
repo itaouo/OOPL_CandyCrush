@@ -63,7 +63,7 @@ void WinRule::Init() {
 		"Resources/texture_pack_original/candy/99.bmp",
 		"Resources/texture_pack_original/candy/999.bmp",
 		"Resources/texture_pack_original/candy/7.bmp",
-		"Resources/texture_pack_original/ice/ice1.bmp" });
+		"Resources/texture_pack_original/ice/ice1.bmp" }, RGB(255,255,255));
 	
 	
 }

@@ -62,7 +62,11 @@ void Map::BeginState(){
 
 void Map::Show() {
 	_background.ShowBitmap();
-	
+	for (int i = 0; i < height(); i++) {
+		for (int j = 0; j < width(); j++) {
+			_ice_map[i][j].ice().ShowBitmap();
+		}
+	}
 	for (int i = 0; i < height(); i++) {
 		for (int j = 0; j < width(); j++) {
 			_candy_map[i][j].candy().ShowBitmap();
@@ -71,11 +75,6 @@ void Map::Show() {
 	for (int i = 0; i < height(); i++) {
 		for (int j = 0; j < width(); j++) {
 			_surface_map[i][j].surface().ShowBitmap();
-		}
-	}
-	for (int i = 0; i < height(); i++) { ////////// not remove object
-		for (int j = 0; j < width(); j++) {
-			_ice_map[i][j].ice().ShowBitmap();
 		}
 	}
 	_win_rule.Show();
@@ -174,7 +173,7 @@ void Map::updateCandyMap() {
 void Map::updateIceMap() {
 	for (int i = 0; i < height(); i++) {
 		for (int j = 0; j < width(); j++) {
-			_ice_map[i][j]._position.first = (400 - 25 * width()) + j * 50 + 10;
+			_ice_map[i][j]._position.first = (400 - 25 * width()) + j * 50;
 			_ice_map[i][j]._position.second = (400 - 25 * height()) + i * 50;
 			_ice_map[i][j].updateIce();
 		}
