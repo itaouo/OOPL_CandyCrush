@@ -35,8 +35,8 @@ void CGameStateRun::OnBeginState()
 {	
 	map.BeginState();
 
-	/*cursor.LoadBitmapByString({ "Resources/texture_pack_original/cursor.bmp" }, RGB(255, 255, 255));
-	cursor.SetTopLeft((400 - 25 * w), (400 - 25 * h));*/
+	cursor.LoadBitmapByString({ "Resources/texture_pack_original/cursor.bmp" }, RGB(255, 255, 255));
+	cursor.SetTopLeft(-100,-100);
 
 }
 
@@ -58,9 +58,6 @@ void delay(int ms) {
 		now = clock();
 	}
 }
-
-
-
 
 void CGameStateRun::OnMove()
 {	
@@ -116,8 +113,8 @@ void CGameStateRun::OnInit()
 	background.LoadBitmapByString({ "resources/texture_pack_original/bg_screens/game.bmp" });
 	background.SetTopLeft(0, 0);
 
-	/*cursor.LoadBitmapByString({ "Resources/texture_pack_original/cursor.bmp" }, RGB(255, 255, 255));
-	cursor.SetTopLeft((400 - 25 * w), (400 - 25 * h));*/
+	cursor.LoadBitmapByString({ "Resources/texture_pack_original/cursor.bmp" }, RGB(255, 255, 255));
+	cursor.SetTopLeft(-100, -100);
 
 }
 
@@ -190,7 +187,6 @@ void CGameStateRun::OnLButtonDown(UINT nFlags, CPoint point)
 	
 	map.idx1 = point.x;
 	map.idy1 = point.y;
-	
 
 	if (!map.is_inSquare() || !map.can_switch_then_switch()) {
 		map.idx0 = map.idx1;
@@ -200,7 +196,6 @@ void CGameStateRun::OnLButtonDown(UINT nFlags, CPoint point)
 		map._win_rule.moves -= 1;
 		map._win_rule.score += 40;
 	}
-
 }
 
 void CGameStateRun::OnLButtonUp(UINT nFlags, CPoint point)

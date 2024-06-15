@@ -173,7 +173,7 @@ void Map::updateCandyMap() {
 void Map::updateIceMap() {
 	for (int i = 0; i < height(); i++) {
 		for (int j = 0; j < width(); j++) {
-			_ice_map[i][j]._position.first = (400 - 25 * width()) + j * 50 + 10;
+			_ice_map[i][j]._position.first = (400 - 25 * width()) + j * 50;
 			_ice_map[i][j]._position.second = (400 - 25 * height()) + i * 50;
 			_ice_map[i][j].updateIce();
 		}
