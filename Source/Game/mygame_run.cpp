@@ -87,6 +87,7 @@ void CGameStateRun::OnMove()
 					map._candy_map[i][j]._will_be_special_candy = 0;
 				}
 			}
+			
 		}
 	}
 

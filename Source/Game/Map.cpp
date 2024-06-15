@@ -800,6 +800,14 @@ void Map::checkMapStatus() { // 1:normal, 0.2:special
 			_candy_map[i0][j0]._fall_status = 0;
 			_candy_map[i1][j1]._fall_status = 0;
 		}
+		else if(_candy_map[i0][j0].type() == 7 && _candy_map[i1][j1].type() == 7)
+		{
+			for (int i = 0; i < height(); i++) {
+				for (int j = 0; j < width(); j++) {
+					_candy_map[i][j]._fall_status = 2;
+				}
+			}
+		}
 		else if (_candy_map[i0][j0].type() == 7) {
 			_win_rule.score += 5000;
 			if (_candy_map[i1][j1].type() < 7 && _candy_map[i1][j1].type() >= 0) {
@@ -877,6 +885,7 @@ void Map::checkMapStatus() { // 1:normal, 0.2:special
 				_candy_map[ii][jj]._type = 7;
 				//disapear = 1;
 				updateCandyMap();
+				
 			}
 			if (is_LTypeCandy(ii, jj) || is_TTypeCandy(ii, jj)) {
 				_candy_map[ii][jj]._fall_status = 4;
@@ -917,12 +926,12 @@ void Map::checkMapStatus() { // 1:normal, 0.2:special
 					boom_que.push_back({ 2, {i,j} });
 				}
 				if (_candy_map[i][j].type() == 7) {
-					_candy_map[i0][j0]._fall_status = 1;
-					int x = 0;
+					_candy_map[i][j]._fall_status = 1;
+					int x = rand() % 4;
 					for (int ii = 0; ii < height(); ii++) {
 						for (int jj = 0; jj < width(); jj++) {
-							if (_candy_map[i][j].type() % 10 == x) {
-								_candy_map[i][j]._fall_status = 1;
+							if (_candy_map[ii][jj].type() % 10 == x) {
+								_candy_map[ii][jj]._fall_status = 1;
 							}
 						}
 					}
@@ -939,12 +948,20 @@ void Map::checkMapStatus() { // 1:normal, 0.2:special
 				_candy_map[i][j]._type = 7;
 				updateCandyMap();
 			}
+		}
+	}
+	for (int i = 0; i < height(); i++) {
+		for (int j = 0; j < width(); j++) {
 			if (is_LTypeCandy(i, j) || is_TTypeCandy(i, j)) {
 				_candy_map[i][j]._fall_status = 0;
 				_candy_map[i][j]._type %= 10;
 				_candy_map[i][j]._type += 10;
 				updateCandyMap();
 			}
+		}
+	}
+	for (int i = 0; i < height(); i++) {
+		for (int j = 0; j < width(); j++) {
 			if (is_ITypeCandy(i, j)) {
 				_candy_map[i][j]._fall_status = 0;
 				_candy_map[i][j]._type %= 10;
@@ -959,7 +976,8 @@ void Map::checkMapStatus() { // 1:normal, 0.2:special
 			}
 		}
 	}
-
+	
+	
 	if (still_fall()) {
 		for (int i = 0; i < height(); i++) {
 			for (int j = 0; j < width(); j++) {
@@ -970,6 +988,7 @@ void Map::checkMapStatus() { // 1:normal, 0.2:special
 		}
 	}
 	ScoreAndMovesCalculate();
+	
 }
 
 bool Map::is_animating() {
